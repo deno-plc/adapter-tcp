@@ -1,0 +1,22 @@
+{
+    "name": "@deno-plc/adapter-tcp",
+    "version": "1.0.0",
+    "exports": "./mod.ts",
+    "fmt": {
+        "indentWidth": 4
+    },
+    "tasks": {
+        "check": "deno fmt && deno lint && deno check mod.ts",
+        "check-ci": "deno fmt --check && deno lint && deno check mod.ts"
+    },
+    "lint": {
+        "rules": {
+            "exclude": [
+                "no-inferrable-types"
+            ]
+        }
+    },
+    "imports": {
+        "@preact/signals-core": "npm:@preact/signals-core"
+    }
+}

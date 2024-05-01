@@ -1,0 +1,20 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:@preact/signals-core": "npm:@preact/signals-core@1.6.0"
+    },
+    "npm": {
+      "@preact/signals-core@1.6.0": {
+        "integrity": "sha512-O/XGxwP85h1F7+ouqTMOIZ3+V1whfaV9ToIVcuyGriD4JkSD00cQo54BKdqjvBJxbenvp7ynfqRHEwI6e+NIhw==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {},
+  "workspace": {
+    "dependencies": [
+      "npm:@preact/signals-core"
+    ]
+  }
+}
