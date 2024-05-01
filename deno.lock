@@ -2,7 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:@preact/signals-core": "npm:@preact/signals-core@1.6.0"
+      "npm:@preact/signals-core@1.6.0": "npm:@preact/signals-core@1.6.0"
     },
     "npm": {
       "@preact/signals-core@1.6.0": {
@@ -14,7 +14,7 @@
   "remote": {},
   "workspace": {
     "dependencies": [
-      "npm:@preact/signals-core"
+      "npm:@preact/signals-core@1.6.0"
     ]
   }
 }
