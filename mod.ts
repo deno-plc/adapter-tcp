@@ -48,15 +48,25 @@ export interface TCPAdapterCallback {
     (data: Uint8Array): void;
 }
 
+/**
+ * (send_callback) => {@link TCPAdapterSession}
+ */
 export interface TCPAdapterSessionFactory {
     (send: TCPAdapterCallback): TCPAdapterSession;
 }
 
+/**
+ * Represents one session (= one connection attempt)
+ * Protocol state machines should be implemented here to ensure they are reset for every connection
+ */
 export interface TCPAdapterSession {
     recv(data: Uint8Array): void;
     destroy(): void;
 }
 
+/**
+ * Options for {@link TCPAdapter}
+ */
 export interface TCPAdapterOptions {
     /**
      * IP (v4/v6) or hostname, use "" or "!" to disable (useful for test mocking)
