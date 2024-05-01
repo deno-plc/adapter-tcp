@@ -21,7 +21,7 @@
 import {
     TCPAdapter,
     type TCPAdapterCallback,
-    TCPAdapterSession,
+    type TCPAdapterSession,
 } from "../mod.ts";
 
 interface MyProtocolAdapterOptions {
