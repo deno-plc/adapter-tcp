@@ -95,7 +95,7 @@ export class TCPAdapter {
         this.verbose = !!options.verbose;
         this.#session_factory = options.sessionFactory;
 
-        if (options.host || options.host !== "!") {
+        if (options.host && options.host !== "!") {
             this.#loop();
         }
     }
