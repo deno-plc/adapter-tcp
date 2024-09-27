@@ -1,10 +1,10 @@
-# @Deno-PLC / Adapter-TCP
+# [Deno-PLC](https://github.com/deno-plc) / [Adapter-TCP](https://jsr.io/@deno-plc/adapter-tcp)
 
 Base adapter for devices that can be controlled via a TCP socket#
 
 ## Installation
 
-`$ deno add @deno-plc/adapter-tcp`
+[Use JSR: ![JSR](https://jsr.io/badges/@deno-plc/adapter-tcp)](https://jsr.io/@deno-plc/adapter-tcp)
 
 ## Usage
 

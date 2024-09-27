@@ -143,6 +143,48 @@ export class TCPAdapter {
 
     #current_conn: Deno.TcpConn | null = null;
 
+    #handle_err(err: unknown) {
+        batch(() => {
+            this.status.value = TCPAdapterConnectionStatus.DISCONNECTED;
+            if (err instanceof Error) {
+                if (this.verbose) {
+                    console.error(
+                        `%c[TCPAdapter] [${this.host}:${this.port}] error ${err.name}`,
+                        "color: #f00",
+                    );
+                }
+                if (err.name === "ConnectionRefused") {
+                    this.details.value =
+                        TCPAdapterConnectionDetails.ECONNREFUSED;
+                } else if (err.name === "ConnectionReset") {
+                    this.details.value = TCPAdapterConnectionDetails.ECONNRESET;
+                } else if (err.name === "Interrupted") {
+                    this.details.value =
+                        TCPAdapterConnectionDetails.INTERRUPTED;
+                } else if (err.name === "TimedOut") {
+                    this.details.value = TCPAdapterConnectionDetails.ETIMEDOUT;
+                } else if (err.name === "ConnectionAborted") {
+                    this.details.value = TCPAdapterConnectionDetails.NO_ERROR;
+                } else {
+                    console.error(
+                        `%c[TCPAdapter] [${this.host}:${this.port}] unknown error ${err.name}`,
+                        "color: red",
+                        err,
+                    );
+                    this.details.value =
+                        TCPAdapterConnectionDetails.UNKNOWN_ERROR;
+                }
+            } else {
+                console.error(
+                    `%c[TCPAdapter] [${this.host}:${this.port}] unknown error`,
+                    "color: red",
+                    err,
+                );
+                this.details.value = TCPAdapterConnectionDetails.UNKNOWN_ERROR;
+            }
+        });
+    }
+
     async #loop() {
         const connStart = performance.now();
         let session: TCPAdapterSession | null = null;
@@ -181,11 +223,7 @@ export class TCPAdapter {
                 // socket write callback
                 if (conn === this.#current_conn) {
                     conn.write(data).catch((err) => {
-                        console.error(
-                            `%c[TCPAdapter] [${this.host}:${this.port}] write failed`,
-                            "color: #f00",
-                            err,
-                        );
+                        this.#handle_err(err);
                     });
                 } else {
                     console.error(
@@ -199,49 +237,7 @@ export class TCPAdapter {
                 session.recv(data);
             }
         } catch (err) {
-            batch(() => {
-                this.status.value = TCPAdapterConnectionStatus.DISCONNECTED;
-                if (err instanceof Error) {
-                    if (this.verbose) {
-                        console.error(
-                            `%c[TCPAdapter] [${this.host}:${this.port}] error ${err.name}`,
-                            "color: #f00",
-                        );
-                    }
-                    if (err.name === "ConnectionRefused") {
-                        this.details.value =
-                            TCPAdapterConnectionDetails.ECONNREFUSED;
-                    } else if (err.name === "ConnectionReset") {
-                        this.details.value =
-                            TCPAdapterConnectionDetails.ECONNRESET;
-                    } else if (err.name === "Interrupted") {
-                        this.details.value =
-                            TCPAdapterConnectionDetails.INTERRUPTED;
-                    } else if (err.name === "TimedOut") {
-                        this.details.value =
-                            TCPAdapterConnectionDetails.ETIMEDOUT;
-                    } else if (err.name === "ConnectionAborted") {
-                        this.details.value =
-                            TCPAdapterConnectionDetails.NO_ERROR;
-                    } else {
-                        console.error(
-                            `%c[TCPAdapter] [${this.host}:${this.port}] unknown error`,
-                            "color: red",
-                            err,
-                        );
-                        this.details.value =
-                            TCPAdapterConnectionDetails.UNKNOWN_ERROR;
-                    }
-                } else {
-                    console.error(
-                        `%c[TCPAdapter] [${this.host}:${this.port}] unknown error`,
-                        "color: red",
-                        err,
-                    );
-                    this.details.value =
-                        TCPAdapterConnectionDetails.UNKNOWN_ERROR;
-                }
-            });
+            this.#handle_err(err);
         }
         this.status.value = TCPAdapterConnectionStatus.DISCONNECTED;
         this.#current_conn = null;
