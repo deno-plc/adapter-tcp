@@ -3,7 +3,7 @@
  *
  * @Deno-PLC / Adapter-TCP
  *
- * Copyright (C) 2024 Hans Schallmoser
+ * Copyright (C) 2024 - 2025 Hans Schallmoser
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
 import {
     TCPAdapter,
     type TCPAdapterCallback,
     type TCPAdapterSession,
 } from "../mod.ts";
+
+await configure({
+    sinks: {
+        console: getConsoleSink(),
+    },
+    loggers: [
+        {
+            category: "app",
+            sinks: ["console"],
+        },
+    ],
+});
+
+const logger = getLogger(["app", "example"]);
 
 interface MyProtocolAdapterOptions {
     host: string;
@@ -51,7 +66,7 @@ class MyProtocolAdapterSession implements TCPAdapterSession {
     }
     recv(data: Uint8Array): void {
         // RX
-        console.log(`[Client] [RX] ${new TextDecoder().decode(data)}`);
+        logger.info`[Client] [RX] ${new TextDecoder().decode(data)}`;
     }
     destroy(): void {
         // nothing to cleanup
@@ -71,11 +86,10 @@ for await (
         port: 1234,
     })
 ) {
-    console.log(
-        `[Server] new client ${conn.remoteAddr.hostname}:${conn.remoteAddr.port}`,
-    );
+    logger
+        .info`[Server] new client ${conn.remoteAddr.hostname}:${conn.remoteAddr.port}`;
     conn.write(new TextEncoder().encode("Server Hello"));
     for await (const msg of conn.readable) {
-        console.log(`[Server] [RX] ${new TextDecoder().decode(msg)}`);
+        logger.info`[Server] [RX] ${new TextDecoder().decode(msg)}`;
     }
 }

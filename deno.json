@@ -1,6 +1,6 @@
 {
     "name": "@deno-plc/adapter-tcp",
-    "version": "1.0.4",
+    "version": "1.1.0",
     "exports": "./mod.ts",
     "fmt": {
         "indentWidth": 4
@@ -17,6 +17,7 @@
         }
     },
     "imports": {
-        "@preact/signals-core": "npm:@preact/signals-core@1.6.0"
+        "@deno-plc/signals": "jsr:@deno-plc/signals@^0.0.2",
+        "@logtape/logtape": "jsr:@logtape/logtape@^0.8.2"
     }
 }

@@ -1,20 +1,40 @@
 {
-  "version": "3",
-  "packages": {
-    "specifiers": {
-      "npm:@preact/signals-core@1.6.0": "npm:@preact/signals-core@1.6.0"
+  "version": "4",
+  "specifiers": {
+    "jsr:@deno-plc/signals@^0.0.2": "0.0.2",
+    "jsr:@logtape/logtape@~0.8.2": "0.8.2",
+    "npm:@preact/signals@^2.0.1": "2.0.1_preact@10.26.2"
+  },
+  "jsr": {
+    "@deno-plc/signals@0.0.2": {
+      "integrity": "8ad0c2d29b8a657059ee5f53b5cadad08c9d1b1b659c93dd04e5b9d4ff6e0cc6",
+      "dependencies": [
+        "npm:@preact/signals"
+      ]
     },
-    "npm": {
-      "@preact/signals-core@1.6.0": {
-        "integrity": "sha512-O/XGxwP85h1F7+ouqTMOIZ3+V1whfaV9ToIVcuyGriD4JkSD00cQo54BKdqjvBJxbenvp7ynfqRHEwI6e+NIhw==",
-        "dependencies": {}
-      }
+    "@logtape/logtape@0.8.2": {
+      "integrity": "e2ae1fc2561e8d010359b9894efb39bdb559dae44f5824540cbb26a78eee36bc"
     }
   },
-  "remote": {},
+  "npm": {
+    "@preact/signals-core@1.8.0": {
+      "integrity": "sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA=="
+    },
+    "@preact/signals@2.0.1_preact@10.26.2": {
+      "integrity": "sha512-f9p/utMgttPb9bJ+UgRBkTDZ9uQiZfX1/gV3pXGWz+yGNQj8MrnG55Xo8MAG4IHcb5UXQO6tvt9ZlsM4A2j+Rw==",
+      "dependencies": [
+        "@preact/signals-core",
+        "preact"
+      ]
+    },
+    "preact@10.26.2": {
+      "integrity": "sha512-0gNmv4qpS9HaN3+40CLBAnKe0ZfyE4ZWo5xKlC1rVrr0ckkEvJvAQqKaHANdFKsGstoxrY4AItZ7kZSGVoVjgg=="
+    }
+  },
   "workspace": {
     "dependencies": [
-      "npm:@preact/signals-core@1.6.0"
+      "jsr:@deno-plc/signals@^0.0.2",
+      "jsr:@logtape/logtape@~0.8.2"
     ]
   }
 }

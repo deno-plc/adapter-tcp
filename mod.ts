@@ -3,7 +3,7 @@
  *
  * @Deno-PLC / Adapter-TCP
  *
- * Copyright (C) 2024 Hans Schallmoser
+ * Copyright (C) 2024 - 2025 Hans Schallmoser
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { batch, type Signal, signal } from "@preact/signals-core";
+import { batch, type Signal, signal } from "@deno-plc/signals";
+import { getLogger, type Logger } from "@logtape/logtape";
 
 /**
  * Describes the status of the connection
@@ -80,7 +81,16 @@ export interface TCPAdapterOptions {
 
     sessionFactory: TCPAdapterSessionFactory;
 
+    /**
+     * enable logging via logtape
+     * @default true
+     */
     verbose?: boolean;
+
+    /**
+     * Displayed in the logs
+     */
+    label?: string;
 }
 
 /**
@@ -92,7 +102,9 @@ export class TCPAdapter {
     ) {
         this.host = options.host;
         this.port = options.port;
-        this.verbose = !!options.verbose;
+        this.verbose = options.verbose ?? true;
+        this.#label = options.label ?? `${options.host}:${options.port}`;
+        this.#logger = getLogger(["app", "deno-plc", "tcp", this.#label]);
         this.#session_factory = options.sessionFactory;
 
         if (options.host && options.host !== "!") {
@@ -111,9 +123,13 @@ export class TCPAdapter {
     readonly port: number;
 
     /**
-     * log everything; mutable
+     * enable logging via logtape
      */
     public verbose: boolean;
+
+    readonly #label: string;
+
+    readonly #logger: Logger;
 
     readonly #session_factory: TCPAdapterSessionFactory;
 
@@ -146,13 +162,8 @@ export class TCPAdapter {
     #handle_err(err: unknown) {
         batch(() => {
             this.status.value = TCPAdapterConnectionStatus.DISCONNECTED;
+            let logged = false;
             if (err instanceof Error) {
-                if (this.verbose) {
-                    console.error(
-                        `%c[TCPAdapter] [${this.host}:${this.port}] error ${err.name}`,
-                        "color: #f00",
-                    );
-                }
                 if (err.name === "ConnectionRefused") {
                     this.details.value =
                         TCPAdapterConnectionDetails.ECONNREFUSED;
@@ -166,20 +177,16 @@ export class TCPAdapter {
                 } else if (err.name === "ConnectionAborted") {
                     this.details.value = TCPAdapterConnectionDetails.NO_ERROR;
                 } else {
-                    console.error(
-                        `%c[TCPAdapter] [${this.host}:${this.port}] unknown error ${err.name}`,
-                        "color: red",
-                        err,
-                    );
+                    this.#logger.error`unknown error ${err.name}`;
+                    logged = true;
                     this.details.value =
                         TCPAdapterConnectionDetails.UNKNOWN_ERROR;
                 }
+                if (this.verbose && !logged) {
+                    this.#logger.error`error ${err.name}`;
+                }
             } else {
-                console.error(
-                    `%c[TCPAdapter] [${this.host}:${this.port}] unknown error`,
-                    "color: red",
-                    err,
-                );
+                this.#logger.error`unknown error ${err}`;
                 this.details.value = TCPAdapterConnectionDetails.UNKNOWN_ERROR;
             }
         });
@@ -190,10 +197,7 @@ export class TCPAdapter {
         let session: TCPAdapterSession | null = null;
         try {
             if (this.verbose) {
-                console.log(
-                    `%c[TCPAdapter] [${this.host}:${this.port}] connecting...`,
-                    "color: #ff0",
-                );
+                this.#logger.info`connecting...`;
             }
             this.status.value = TCPAdapterConnectionStatus.CONNECTING;
 
@@ -209,10 +213,7 @@ export class TCPAdapter {
             conn.setKeepAlive(true);
 
             if (this.verbose) {
-                console.log(
-                    `%c[TCPAdapter] [${this.host}:${this.port}] connected`,
-                    "color: #0f0",
-                );
+                this.#logger.info`connected`;
             }
             batch(() => {
                 this.status.value = TCPAdapterConnectionStatus.CONNECTED;
@@ -226,10 +227,8 @@ export class TCPAdapter {
                         this.#handle_err(err);
                     });
                 } else {
-                    console.error(
-                        `%c[TCPAdapter] [${this.host}:${this.port}] attempt to write to closed socket failed, please check your driver code`,
-                        "color: #f00",
-                    );
+                    this.#logger
+                        .fatal`attempt to write to closed socket failed, please check your driver code`;
                 }
             });
 
